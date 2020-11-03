@@ -1,0 +1,55 @@
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+
+yum -y install epel-release
+yum -y install python-pip
+vi ~/.pip/pip.conf
+[global]
+index-url = https://mirrors.aliyun.com/pypi/simple/
+
+[install]
+trusted-host=mirrors.aliyun.com
+pip install --upgrade pip
+
+
+# step 1: 安装必要的一些系统工具
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+# Step 2: 添加软件源信息
+sudo yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+# Step 3: 更新并安装Docker-CE
+sudo yum makecache fast
+sudo yum -y install docker-ce
+# Step 4: 开启Docker服务
+sudo service docker start
+
+
+sudo yum groupinstall -y development tools
+sudo yum install -y epel-release libxslt-devel libxml2-devel openssl-devel
+pip install Scrapy
+
+
+
+vi /etc/yum.repos.d/mongodb-org.repo
+[mongodb-org] 
+name = MongoDB Repository
+baseurl = https://mirrors.aliyun.com/mongodb/yum/redhat/$releasever/mongodb-org/3.6/x86_64/
+gpgcheck = 1 
+enabled = 1 
+gpgkey = https://www.mongodb.org/static/pgp/server-3.6.asc
+systemctl start mongod	
+mongo
+use admin
+db.createUser({user:'admin',pwd:'jianxiong',roles:[{role:'root',db:'admin'}]})
+vi /etc/mongod.conf
+security:
+  authorization: enabled
+
+net:
+  port: 27017
+  bindIp: 0.0.0.0 #允许任意IP连接
+firewall-cmd --query-port=27017/tcp
+firewall-cmd --zone=public --add-port=27017/tcp --permanent
+firewall-cmd --reload
+firewall-cmd --query-port=27017/tcp
+
+
